@@ -1,19 +1,22 @@
-# Make file
+# Makefile
 #
-# $Id: Makefile 4 2010-01-10 22:10:13Z adias $
+# $Id: Makefile 11 2010-04-24 17:16:16Z americo.dias $
 
-#CC := avr32-linux-gcc
-CFLAGS := -pipe -O2 -g -Wall -pthread
+REV=$(shell svn info --revision HEAD | grep 'Revision: ' | sed 's/[^0-9]*\([0-9]\+\).*/\1/')
 
-DEPS = connection.h
-OBJ = server.o connection.o parser.o
+CC := avr32-linux-gcc
+CFLAGS := -pipe -O2 -g -Wall -pthread -fno-strict-aliasing -D_REENTRANT -D_REV=$(REV)
+
+DEPS = parser.h timestamp.h log.h data_conn.h command_conn.h defs.h
+OBJ = main.o parser.o timestamp.o log.o data_conn.o command_conn.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-server: $(OBJ)
+core51: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 	
 .PHONY: clean
 clean:
-	$(RM) *.o *~ server
+	$(RM) *.o *~ core51
+
