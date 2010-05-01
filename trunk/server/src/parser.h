@@ -7,11 +7,11 @@
  * \author
  *      Américo Dias <americo.dias@fe.up.pt>
  *
- * $Revision: 11 $
- * $HeadURL: https://rmws.googlecode.com/svn/trunk/src/parser.h $
- * $Date: 2010-04-24 18:16:16 +0100 (Sat, 24 Apr 2010) $
- * $Author: americo.dias $
- * $Id: parser.h 11 2010-04-24 17:16:16Z americo.dias $
+ * $Revision$
+ * $HeadURL$
+ * $Date$
+ * $Author$
+ * $Id$
  *
  ******************************************************************************/
 #ifndef __PARSER_H
@@ -24,18 +24,11 @@
 #define CMD_END_PROGRAM		"ENDP"
 #define CMD_ACKNOWLEDGE		"ACKN"
 #define CMD_NOT_ACKNOWLEDGE "NACK"
-#define CMD_PROGRAM_HEX     "PHEX"
-#define CMD_RUN_HEX 		"RHEX"
-#define CMD_ABORT_HEX       "AHEX"
-#define CMD_SET_KEY         "SKEY"
-#define CMD_SET_RESET       "SRST"
-#define CMD_SET_INTERRUPT   "SINT"
-#define CMD_CLEAR_KEY       "CKEY"
-#define CMD_CLEAR_RESET     "CRST"
-#define CMD_CLEAR_INTERRUPT "CINT"
 #define CMD_READY           "REDY"
 #define CMD_BUSY            "BUSY"
 
+int send_ack(int *socket);
+int send_nack(int *socket);
 int command_parser(char *string, int *socket);
 
 

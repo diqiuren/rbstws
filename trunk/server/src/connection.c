@@ -4,7 +4,7 @@
  * \brief
  *      TCP/IP connection handler
  * 
- * $Id: connection.c 4 2010-01-10 22:10:13Z adias $
+ * $Id$
  *
  ****************************************************************************/
 #include <stdio.h>

@@ -7,11 +7,11 @@
  * \author
  *      Américo Dias <americo.dias@fe.up.pt>
  *
- * $Revision: 11 $
- * $HeadURL: https://rmws.googlecode.com/svn/trunk/src/timestamp.c $
- * $Date: 2010-04-24 18:16:16 +0100 (Sat, 24 Apr 2010) $
- * $Author: americo.dias $
- * $Id: timestamp.c 11 2010-04-24 17:16:16Z americo.dias $
+ * $Revision$
+ * $HeadURL$
+ * $Date$
+ * $Author$
+ * $Id$
  *
  ******************************************************************************/
 #include <stdio.h>

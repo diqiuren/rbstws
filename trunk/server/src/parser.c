@@ -7,11 +7,11 @@
  * \author
  *      Américo Dias <americo.dias@fe.up.pt>
  *
- * $Revision: 11 $
- * $HeadURL: https://rmws.googlecode.com/svn/trunk/src/parser.c $
- * $Date: 2010-04-24 18:16:16 +0100 (Sat, 24 Apr 2010) $
- * $Author: americo.dias $
- * $Id: parser.c 11 2010-04-24 17:16:16Z americo.dias $
+ * $Revision$
+ * $HeadURL$
+ * $Date$
+ * $Author$
+ * $Id$
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -22,7 +22,8 @@
 #include "parser.h"
 #include "defs.h"
 
-int send_ack(int *socket) 
+
+int send_ack(int *socket) {
     return write(*socket, CMD_ACKNOWLEDGE, strlen(CMD_ACKNOWLEDGE));
 }
 
@@ -90,6 +91,28 @@ int command_parser(char *string, int *socket)
         n = write(*socket, CMD_PONG, strlen(CMD_PONG));
         if (n < 0)
 			return n;
+    }
+    /*
+     * Program mode:
+     * If the program mode is active, send the data to the program file
+     */ 
+    else if(program_status == 1) {
+		
+		fp = fopen(HEX_FILE_NAME, "a");
+		
+		if(fp == NULL)
+			return -1;
+			
+		n = fwrite(string, sizeof(char), strlen(string), fp);
+		fputc('\n', fp);
+		
+		fclose(fp);
+		
+		if(n < 0)
+			return n;
+			
+		if((n=send_ack(socket)) < 0) return n;
+			
     }
     /*
      * Else:
