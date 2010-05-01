@@ -4,7 +4,7 @@
  * \brief
  *      TCP/IP connection handler definitions
  *  
- * $Id: connection.h 3 2010-01-10 17:43:47Z adias $
+ * $Id$
  *
  ****************************************************************************/
 #ifndef __CONNECTION_H
