@@ -36,6 +36,7 @@
 #include "parser.h"
 #include "command_conn.h"
 #include "data_conn.h"
+#include "interpreter.h"
 
 int                 command_connection;
 
@@ -44,7 +45,9 @@ pthread_mutex_t     command_connection_mutex;
 void command_conn_sigchld_handler(int s)
 {
 	while(waitpid(-1, NULL, WNOHANG) > 0);
-	fflush(stdout);
+#ifdef _DEBUG		
+    printf("command_conn_sigchld_handler\n"); fflush(stdout);
+#endif
 }
 
 // get sockaddr, IPv4 or IPv6:
@@ -85,6 +88,7 @@ void *command_conn(void *arg) {
     struct timeval tv;
 
     command_conn_set_status(1);
+	interpreter_init(PROG_FILE_NAME);
 	
 	if (send(*socket, CMD_READY, strlen(CMD_READY), 0) < 0)
 		log_write("Command connection error");
@@ -135,7 +139,8 @@ void *command_conn(void *arg) {
 	
 	command_conn_set_status(0);
 	data_conn_set_status(0);
-
+    interpreter_close();
+     
 	close(*socket);
 	return NULL;
 		

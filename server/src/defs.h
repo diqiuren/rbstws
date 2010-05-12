@@ -39,7 +39,7 @@
                                      // will hold
 #define SOCKET_BUFFER_SIZE	2048
 
-#define HEX_FILE_NAME       "/tmp/rbstws.hex"       // Core51 HEX file
+#define PROG_FILE_NAME      "/tmp/rbstws.svf"       // Program file
 #define LOG_FILE_NAME       "/var/log/rbstws.log"   // Log file
 
 struct args {
@@ -48,4 +48,6 @@ struct args {
 	int socket_fd;
 	int slave;
 };
+
+
 #endif //__DEFS_H

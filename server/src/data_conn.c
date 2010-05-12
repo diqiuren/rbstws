@@ -37,9 +37,19 @@
 #include "command_conn.h"
 #include "data_conn.h"
 
+
 int                 data_connection;
 pthread_mutex_t     data_connection_mutex;
-    
+pthread_mutex_t     data_connection_data_mutex;
+static char         data_buffer[1024];
+
+
+void data_con_write(char *message)
+{
+    pthread_mutex_lock(&data_connection_data_mutex);
+    strcat(data_buffer, message);
+    pthread_mutex_unlock(&data_connection_data_mutex);
+}
 
 void data_conn_sigchld_handler(int s)
 {
@@ -59,6 +69,7 @@ void *data_conn_get_in_addr(struct sockaddr *sa)
        
 void data_conn_init(void) {
     data_connection = 0;
+    memset(data_buffer, '\0', 1024);
     pthread_mutex_init(&data_connection_mutex, NULL);
     return;
 }
@@ -74,7 +85,17 @@ void *data_conn(void *arg) {
 	while(1) {
 	    if(data_conn_get_status() == 0)
 	        break;
-        // TODO: Complete this
+        pthread_mutex_lock(&data_connection_data_mutex); {
+            if(strlen(data_buffer)) {
+                if(write(*socket, data_buffer, strlen(data_buffer)) < 0 ) {
+		            log_write("Data connection error");
+		            break;
+            	}
+            	memset(data_buffer, '\0', 1024);
+            }
+    	}
+        pthread_mutex_unlock(&data_connection_data_mutex);
+        usleep(100);
 	}
 	
 	data_conn_set_status(0);

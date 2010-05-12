@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     command_conn_init();
     data_conn_init();
     log_init();
-    
+
     arglist.baudrate = DEFAULT_BAUDRATE;
     arglist.port = DEFAULT_PORT;
        

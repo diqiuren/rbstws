@@ -26,6 +26,8 @@
 #define CMD_NOT_ACKNOWLEDGE "NACK"
 #define CMD_READY           "REDY"
 #define CMD_BUSY            "BUSY"
+#define CMD_RUN_PROGRAM     "RUNP"
+#define CMD_STEP_PROGRAM    "STEP"
 
 int send_ack(int *socket);
 int send_nack(int *socket);
