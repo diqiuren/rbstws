@@ -37,7 +37,7 @@ int init_module(void)
         printk( KERN_ALERT "JTAG module: couldn't register device\n" );
         return ret_val;
     }
-  
+    
     printk(KERN_DEBUG "JTAG module: module loaded (version %s)\n", DISP(VERSION));
   
     return 0;

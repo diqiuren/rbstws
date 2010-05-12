@@ -17,6 +17,8 @@
 #ifndef __DATA_CONN_H
 #define __DATA_CONN_H
 
+
+void data_con_write(char *message);
 void data_conn_init(void);
 void *data_conn(void *arg);
 void *data_conn_busy(void *arg);

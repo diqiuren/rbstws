@@ -21,6 +21,7 @@
 
 #include "parser.h"
 #include "defs.h"
+#include "interpreter.h"
 
 
 int send_ack(int *socket) {
@@ -61,7 +62,7 @@ int command_parser(char *string, int *socket)
      * If the file already exist, it is rewritten.
      */
 	else if(command_test(string, CMD_PROGRAM)) {
-		fp = fopen(HEX_FILE_NAME, "w");
+		fp = fopen(PROG_FILE_NAME, "wt");
 		
 		if(fp == NULL)
 			return -1;
@@ -84,6 +85,20 @@ int command_parser(char *string, int *socket)
 		if((n=send_ack(socket)) < 0) return n;
 	}
 	/*
+	 * Command run program:
+	 */
+    else if(command_test(string, CMD_RUN_PROGRAM)) {
+        interpreter_run();
+        if((n=send_ack(socket)) < 0) return n;
+    }
+	/*
+	 * Command step program:
+	 */
+    else if(command_test(string, CMD_STEP_PROGRAM)) {
+        interpreter_step();
+        if((n=send_ack(socket)) < 0) return n;
+    }
+	/*
 	 * Command ping:
 	 * Just for testing... answer with a "PONG".
 	 */
@@ -98,7 +113,7 @@ int command_parser(char *string, int *socket)
      */ 
     else if(program_status == 1) {
 		
-		fp = fopen(HEX_FILE_NAME, "a");
+		fp = fopen(PROG_FILE_NAME, "at");
 		
 		if(fp == NULL)
 			return -1;

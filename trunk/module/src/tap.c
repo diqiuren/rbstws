@@ -6,6 +6,9 @@
  *
  * \par Documentation
  *      For comprehensive code documentation, see readme.html
+ * 
+ * \reference 
+ *      http://bleyer.org/jjtag/
  *
  * \date 2009-12-18
  *  
@@ -127,25 +130,25 @@ static const tap_state_t tap_next_state[][2] = {
 };
 
 static const int tap_pin[][2] = {
-	{GPIO_PIN_PA(0), GPIO_PIN_PA(10)},		// TDI
-	{GPIO_PIN_PA(1), GPIO_PIN_PA(11)},		// TCK
-	{GPIO_PIN_PA(2), GPIO_PIN_PA(12)},		// TMS
-	{GPIO_PIN_PA(3), GPIO_PIN_PA(13)},		// TRST
-	{GPIO_PIN_PA(4), GPIO_PIN_PA(14)}		// TDO
+	{GPIO_PIN_PD(5), GPIO_PIN_PD(5)},		// TDI
+	{GPIO_PIN_PD(3), GPIO_PIN_PD(3)},		// TCK
+	{GPIO_PIN_PD(1), GPIO_PIN_PD(1)},		// TMS
+	{GPIO_PIN_PD(0), GPIO_PIN_PD(0)},		// TRST
+	{GPIO_PIN_PC(26), GPIO_PIN_PC(26)}		// TDO
 };
 
 static const int tap_input[] = {
-	GPIO_PIN_PA(5),							// IO0 (INPUT 0)
-	GPIO_PIN_PA(15),						// IO1 (INPUT 1)
+	GPIO_PIN_PC(25),							// IO0 (INPUT 0)
+	GPIO_PIN_PC(27),						// IO1 (INPUT 1)
 };
 
 static const int tap_output[] = {
-	GPIO_PIN_PA(16),						// IO2 (OUTPUT 0)
-	GPIO_PIN_PA(19)							// IO3 (OUTPUT 1)
+	GPIO_PIN_PD(1),						// IO2 (OUTPUT 0)
+	GPIO_PIN_PD(2)							// IO3 (OUTPUT 1)
 };
 
 tap_state_t 	tap_state[2];
-
+const char      reset_str[] = "11111";
 
 /*******************************************************************************
 * Local routines
@@ -198,23 +201,31 @@ void tap_tms(unsigned int tap, char *b) {
 
 void tap_initialize(void) 
 {
+    static int initialized = 0;
+    
 	int x,y;
 	
-	for(x=0; x<4; x++) {
-		for(y=0; y<2; y++) {
-			gpio_direction_output(tap_pin[x][y], 0);	// TAP outputs
-		}
-	}
+	if(initialized == 0) {
+	    for(x=0; x<4; x++) {
+		    for(y=0; y<2; y++) {
+			    gpio_direction_output(tap_pin[x][y], ON);	// TAP outputs
+		    }
+	    }
 	
-	for(x=0; x<2; x++) {
-		gpio_direction_input(tap_pin[4][x]);			// TDO
-		gpio_direction_input(tap_input[x]);
-		gpio_direction_output(tap_output[x],0);
-		tap_state[x] = TEST_LOGIC_RESET;
-		tap_set_pin(0, TRST, ON);
-		tap_reset(x);
+	    for(x=0; x<2; x++) {
+		    gpio_direction_input(tap_pin[4][x]);			// TDO
+		    gpio_direction_input(tap_input[x]);
+		    gpio_direction_output(tap_output[x],0);
+		    tap_state[x] = TEST_LOGIC_RESET;
+		    tap_set_pin(0, TRST, ON);
+		    tap_reset(x);
+	    }
+	    
+	    initialized = 1;
+#ifdef _DEBUG
+        printk(KERN_DEBUG "JTAG module: tap initialized!\n");
+#endif  
 	}
-	
 }
 
 void tap_soft_reset(unsigned int tap) {
@@ -231,13 +242,20 @@ void tap_reset(unsigned int tap)
 
 char *tap_goto_state(unsigned int tap, tap_state_t next_state)
 {
+    char *tms;
+#ifdef _DEBUG
+    printk(KERN_DEBUG "JTAG module: tap_goto_state(%d,%d)\n", tap, (int)next_state);
+#endif
 	if(next_state == TEST_LOGIC_RESET) {
 		tap_soft_reset(tap);
-		return (char *)"11111";
+		return (char *)reset_str;
 	}
+    
+    tms = (char *)tap_transitions[tap_state[tap]][next_state];
+    
+	tap_tms(tap, tms);
 
-	tap_tms(tap, (char *)tap_transitions[tap_state[tap]][next_state]);
-	return (char *)tap_transitions[tap_state[tap]][next_state];
+	return tms;
 }
 
 /** Control TDI signal and TAP state using bits from string (right to left) */
@@ -251,17 +269,24 @@ void tap_tdi(unsigned int tap, char *b, char *c) {
 	for (i=0; i<l; ++i) {
 		tap_set_pin(tap, TDI, b[l-1-i] == '0' ? OFF : ON);
 		tap_set_pin(tap, TCK, OFF); // assume TCK was high shift out TDO in this state
+		if(i==l-1) {
+		     tap_set_pin(tap, TMS, ON);
+		} 
 		tap_hold();
 		tap_set_pin(tap, TCK, ON); // shift in TDI, TMS
 		tap_hold();
 		c[l-1-i] = (tap_get_pin(tap, TDO) == ON ) ? '1' : '0'; // sample TDO
 	}
+	
+    tap_state[tap] = tap_next_state[tap_state[tap]][1];
+	//tap_set_pin(tap, TDI, ON); 
+	
 	return;
 }
 
-void tap_runtest(unsigned int tap, unsigned int count)
+void tap_runtest(unsigned int tap, unsigned long count)
 {
-	unsigned int i;
+	unsigned long i;
 	
 	for (i=0; i<count; i++) {
 		tap_set_pin(tap, TCK, ON); // shift in TDI, TMS
@@ -269,6 +294,11 @@ void tap_runtest(unsigned int tap, unsigned int count)
 		tap_set_pin(tap, TCK, OFF); // shift in TDI, TMS
 		tap_hold();
 	}
+}
+
+tap_state_t tap_get_state(unsigned int tap)
+{
+    return tap_state[tap];
 }
 
 void tap_set_io(unsigned char pin, unsigned char value) {
@@ -285,3 +315,5 @@ tap_pin_state_t tap_get_io(unsigned char pin) {
 		
 	return gpio_get_value(tap_output[pin]);
 }
+
+
