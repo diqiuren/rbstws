@@ -46,6 +46,9 @@ static char         data_buffer[1024];
 
 void data_con_write(char *message)
 {
+    if(data_conn_get_status() == 0) 
+	    return;
+	    
     pthread_mutex_lock(&data_connection_data_mutex);
     strcat(data_buffer, message);
     pthread_mutex_unlock(&data_connection_data_mutex);
@@ -83,7 +86,7 @@ void *data_conn(void *arg) {
 		log_write("Data connection error");
 	
 	while(1) {
-	    if(data_conn_get_status() == 0)
+	    if(data_conn_get_status() == 0) 
 	        break;
         pthread_mutex_lock(&data_connection_data_mutex); {
             if(strlen(data_buffer)) {
