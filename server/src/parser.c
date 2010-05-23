@@ -42,6 +42,7 @@ int command_test(char *string, char *command) {
 int command_parser(char *string, int *socket) 
 {
     static int program_status = 0;
+    static int breakpoint_status = 0;
     
 	FILE *fp;
 	int n;
@@ -81,14 +82,21 @@ int command_parser(char *string, int *socket)
      */
 	else if(command_test(string, CMD_END_PROGRAM)) {				
 		program_status = 0;
-		
+		code_parser();
 		if((n=send_ack(socket)) < 0) return n;
 	}
 	/*
 	 * Command run program:
 	 */
     else if(command_test(string, CMD_RUN_PROGRAM)) {
-        interpreter_run();
+        interpreter_start_run();
+        if((n=send_ack(socket)) < 0) return n;
+    }
+	/*
+	 * Command abort program:
+	 */
+    else if(command_test(string, CMD_ABORT_PROGRAM)) {
+        interpreter_abort_run();
         if((n=send_ack(socket)) < 0) return n;
     }
 	/*
@@ -96,6 +104,21 @@ int command_parser(char *string, int *socket)
 	 */
     else if(command_test(string, CMD_STEP_PROGRAM)) {
         interpreter_step();
+        if((n=send_ack(socket)) < 0) return n;
+    }
+	/*
+	 * Command breakpoint start:
+	 */
+    else if(command_test(string, CMD_BREAKPOINT_START)) {
+        interpreter_clear_breakpoints();
+        breakpoint_status = 1;
+        if((n=send_ack(socket)) < 0) return n;
+    }
+	/*
+	 * Command breakpoint end:
+	 */
+    else if(command_test(string, CMD_BREAKPOINT_END)) {
+        breakpoint_status = 0;
         if((n=send_ack(socket)) < 0) return n;
     }
 	/*
@@ -121,6 +144,7 @@ int command_parser(char *string, int *socket)
 		n = fwrite(string, sizeof(char), strlen(string), fp);
 		fputc('\n', fp);
 		
+		fflush(fp);
 		fclose(fp);
 		
 		if(n < 0)
@@ -128,6 +152,13 @@ int command_parser(char *string, int *socket)
 			
 		if((n=send_ack(socket)) < 0) return n;
 			
+    }
+    /*
+     * Breakpoint mode:
+     */ 
+    else if(breakpoint_status == 1) {
+        interpreter_add_breakpoint(atoi(string));
+        if((n=send_ack(socket)) < 0) return n;
     }
     /*
      * Else:

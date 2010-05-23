@@ -137,9 +137,10 @@ void *command_conn(void *arg) {
 		}
 	}
 	
+	interpreter_close();
 	command_conn_set_status(0);
 	data_conn_set_status(0);
-    interpreter_close();
+    
      
 	close(*socket);
 	return NULL;

@@ -18,7 +18,8 @@ typedef enum {
     UP_SETI,
     UP_RSTI,
     
-    UP_NOP = 0xFF
+    UP_NOP = 0xFE,
+    UP_END = 0xFF
 } upcode_t;
 
 typedef struct {
@@ -37,11 +38,16 @@ typedef enum {
 	ON = 0x00
 } tap_pin_state_t;
 
-int interpreter_run(void);
+int code_parser();
+void *interpreter_run(void *arg);
 int interpreter_step(void);
 void interpreter_reset(void);
 int interpreter_init(char *fname);
 void interpreter_close(void);
+void interpreter_start_run(void);
+void interpreter_abort_run(void);
+void interpreter_add_breakpoint(int line);
+void interpreter_clear_breakpoints(void);
 
 #endif //_INTERPRETER_H_
 
