@@ -3,7 +3,7 @@
 ifneq ($(KERNELRELEASE),)
 
 # Comment the following line to disable DEBUG
-DEBUG := 1
+# DEBUG := 1
 
 obj-m := mod_jtag.o
 mod_jtag-y =  chardev.o tap.o module.o

@@ -30,8 +30,8 @@ typedef enum {
 } tap_pin_t;
 
 typedef enum {
-	OFF = 0x01,
-	ON = 0x00
+	OFF = 0x00,
+	ON = 0x01
 } tap_pin_state_t;
 
 void tap_initialize(void);

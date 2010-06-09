@@ -30,6 +30,20 @@
 
 unsigned int tap;
 
+void strcpy_inv(char *dest, char *source)
+{
+	int x;
+	int len = strlen(source);
+	
+	dest += len;	
+    *dest-- = '\0';
+    
+	for(x=len; x>0; x--){
+		*dest-- = *source++;
+	}
+
+}
+
 /*! \brief Holds whether the device was already opened */
 static int Device_Open = 0;
 
@@ -110,8 +124,8 @@ int device_ioctl( struct inode *inode,
                 return -EFAULT;
                 
             pointer = tap_goto_state(tap,state_cmd_dt.state);
-			strcpy(state_cmd_dt.tms_buffer, pointer);
-			 
+			strcpy_inv(state_cmd_dt.tms_buffer, pointer);
+					 
             if(copy_to_user((state_command_data *)arg, &state_cmd_dt, sizeof(state_command_data))!=0)
                 return -EFAULT;
                 

@@ -130,21 +130,21 @@ static const tap_state_t tap_next_state[][2] = {
 };
 
 static const int tap_pin[][2] = {
-	{GPIO_PIN_PD(5), GPIO_PIN_PD(5)},		// TDI
-	{GPIO_PIN_PD(3), GPIO_PIN_PD(3)},		// TCK
-	{GPIO_PIN_PD(1), GPIO_PIN_PD(1)},		// TMS
-	{GPIO_PIN_PD(0), GPIO_PIN_PD(0)},		// TRST
-	{GPIO_PIN_PC(26), GPIO_PIN_PC(26)}		// TDO
+	{GPIO_PIN_PA(0), GPIO_PIN_PA(10)},		// TDI
+	{GPIO_PIN_PA(1), GPIO_PIN_PA(11)},		// TCK
+	{GPIO_PIN_PA(2), GPIO_PIN_PA(12)},		// TMS
+	{GPIO_PIN_PA(3), GPIO_PIN_PA(13)},		// TRST
+	{GPIO_PIN_PA(4), GPIO_PIN_PA(14)}		// TDO
 };
 
 static const int tap_input[] = {
-	GPIO_PIN_PC(25),							// IO0 (INPUT 0)
-	GPIO_PIN_PC(27),						// IO1 (INPUT 1)
+	GPIO_PIN_PA(5),							// IO0 (INPUT 0)
+	GPIO_PIN_PA(15),						// IO1 (INPUT 1)
 };
 
 static const int tap_output[] = {
-	GPIO_PIN_PD(1),						// IO2 (OUTPUT 0)
-	GPIO_PIN_PD(2)							// IO3 (OUTPUT 1)
+	GPIO_PIN_PA(16),						// IO2 (OUTPUT 0)
+	GPIO_PIN_PA(19)							// IO3 (OUTPUT 1)
 };
 
 tap_state_t 	tap_state[2];
@@ -163,7 +163,7 @@ void tap_set_pin(unsigned int tap, tap_pin_t pin, tap_pin_state_t s) {
 }
 
 tap_pin_state_t tap_get_pin(unsigned int tap, tap_pin_t pin) {
-	if(gpio_get_value(tap_pin[pin][tap]) == 0)
+	if(gpio_get_value(tap_pin[pin][tap]) == OFF)
 		return OFF;
 	else
 		return ON;
@@ -189,6 +189,7 @@ void tap_tms(unsigned int tap, char *b) {
 		tap_hold();
 		tap_state[tap] = tap_next_state[tap_state[tap]][v]; // update state
 	}
+	tap_set_pin(tap, TCK, OFF);
 	
 	return;
 }
