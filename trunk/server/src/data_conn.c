@@ -41,7 +41,7 @@
 int                 data_connection;
 pthread_mutex_t     data_connection_mutex;
 pthread_mutex_t     data_connection_data_mutex;
-static char         data_buffer[1024];
+static char         data_buffer[8192];
 
 
 void data_con_write(char *message)
@@ -72,7 +72,7 @@ void *data_conn_get_in_addr(struct sockaddr *sa)
        
 void data_conn_init(void) {
     data_connection = 0;
-    memset(data_buffer, '\0', 1024);
+    memset(data_buffer, '\0', 8192);
     pthread_mutex_init(&data_connection_mutex, NULL);
     return;
 }
@@ -94,7 +94,7 @@ void *data_conn(void *arg) {
 		            log_write("Data connection error");
 		            break;
             	}
-            	memset(data_buffer, '\0', 1024);
+            	memset(data_buffer, '\0', 8192);
             }
     	}
         pthread_mutex_unlock(&data_connection_data_mutex);

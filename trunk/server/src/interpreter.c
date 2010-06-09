@@ -52,7 +52,16 @@ char nibble_converter(char bit3, char bit2, char bit1, char bit0)
         value |= 0x02;
     if(bit0 == '1' || bit0 == 'x')
         value |= 0x01;
-
+/*
+    if(bit3 == '1')
+        value |= 0x08;
+    if(bit2 == '1')
+        value |= 0x04;
+    if(bit1 == '1')
+        value |= 0x02;
+    if(bit0 == '1')
+        value |= 0x01;
+*/
     sprintf (&result, "%X", value);
 
     return result;
@@ -63,13 +72,17 @@ char *iconverter(char *tdi, char *tdo, char *tms, tap_state_t initial_state, cha
     tap_state_t state;
     unsigned int counter;
     int len = strlen(tdi);
-
+    char buf;
+    
     state = initial_state;
-    output_buffer = calloc(2, sizeof(char));
+    //output_buffer = calloc(2, sizeof(char));
+#ifdef _DEBUG		
+		printf("TDI:%s\nTDO:%s\nTMS:%s\nInitial state:%d\n", tdi, tdo, tms, initial_state);
+#endif    
+    output_buffer = calloc(len*2+1, sizeof(char));
     
     for(counter = 0; counter < len ; counter++) {
-        output_buffer = realloc(output_buffer,counter*2+1);
-        
+
         output_buffer[2*counter] = nibble_converter(tms[counter], tdi[counter], tdo[counter], '0');
         
         if(tms[counter] == '0')
@@ -77,8 +90,13 @@ char *iconverter(char *tdi, char *tdo, char *tms, tap_state_t initial_state, cha
         else
             state = tap_next_state[state][1];
         
-        sprintf (&output_buffer[2*counter+1], "%X", state);
+        sprintf (&buf, "%X", state);
+        
+        output_buffer[2*counter+1] = buf;
     }
+#ifdef _DEBUG		
+		printf("Output:%s\n\n", output_buffer);
+#endif    
 
     return output_buffer;
 }
@@ -161,7 +179,7 @@ int code_parser(void) {
             
             instruction->line = line_number;
             instruction->breakpoint = 0;
-            sscanf (line,"%u %s %s %s %s", &instruction->upcode, arg1, arg2, arg3, arg4);
+            sscanf (line,"%X %s %s %s %s", &instruction->upcode, arg1, arg2, arg3, arg4);
             
             if(strlen(arg1)) {
                 instruction->arg1 = calloc(strlen(arg1), sizeof(char));
@@ -215,14 +233,14 @@ instruction_t *process_instruction(int *fd, instruction_t *instruction)
     instruction_t *next_instruction = NULL;
     unsigned int next_instruction_line;
     tap_state_t initial_state;
-    char tdi_buffer[1024];
-    char tdo_buffer[1024];
-    char tms_buffer[1024];
+    char tdi_buffer[BUFFER_LEN];
+    char tdo_buffer[BUFFER_LEN];
+    char tms_buffer[BUFFER_LEN];
     char *signal = NULL;
     char *buffer = NULL; 
     int next_line_breakpoint = 0;
     
-    buffer = calloc(2048, sizeof(char));
+    buffer = calloc(2*BUFFER_LEN, sizeof(char));
     
     if(instruction != NULL) {
         switch(instruction->upcode) {
@@ -398,6 +416,7 @@ void *interpreter_run(void *arg) {
             code_parser();
         current_instruction = instructions;
         error_flag = 0;
+        seltap(&jtag, 0);
     }
     
     while(current_instruction != NULL && interpreter_is_running() == 1) {
@@ -420,6 +439,7 @@ int interpreter_step(void) {
             code_parser();
         current_instruction = instructions;
         error_flag = 0;
+        seltap(&jtag, 0);  
     }
     
     current_instruction = process_instruction(&jtag, current_instruction);

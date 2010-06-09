@@ -6,6 +6,20 @@
 #include <sys/ioctl.h>
 #include "jtag.h"
 
+void strcpy_inv(char *dest, char *source)
+{
+	int x;
+	int len = strlen(source);
+	
+	dest += len;	
+    *dest-- = '\0';
+    
+	for(x=len; x>0; x--){
+		*dest-- = *source++;
+	}
+
+}
+
 char *hex2bin(int nbits, char *string, char *result)
 {
 	int counter;
@@ -112,8 +126,9 @@ int sir(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
     state_command_data state_cmd_dt;
     shift_command_data shift_cmd_dt;
 
-    char *tdi_bin, *tdo_bin, *mask_bin;
+    char *tdi_bin, *tdo_bin, *mask_bin, *temp;
     
+    temp = calloc(nbits+1, sizeof(char)); 
     tdi_bin = calloc(nbits+1, sizeof(char));
     tdo_bin = calloc(nbits+1, sizeof(char));
     mask_bin = calloc(nbits+1, sizeof(char));
@@ -154,9 +169,12 @@ int sir(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
     
     if(res)
         goto sir_exit;
-    
-    strcat(tdi_buffer, tdi_bin);
-    strcat(tdo_buffer, shift_cmd_dt.tdo_buffer);
+        
+    strcpy_inv(temp, tdi_bin);
+    strcat(tdi_buffer, temp);
+    strcpy_inv(temp, shift_cmd_dt.tdo_buffer);
+    strcat(tdo_buffer, temp);
+
     for(counter=0; counter < strlen(tdi_bin)-1; counter++) {
         strcat(tms_buffer, "0");
     }
@@ -176,11 +194,12 @@ int sir(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
         strcat(tdi_buffer, "x");
         strcat(tdo_buffer, "x");
     }   
-    
+   
     if(check_tdi(tdo_bin, shift_cmd_dt.tdo_buffer, mask_bin))
         res = -2;
 
 sir_exit:
+free(temp);
     free(tdi_bin);
     free(tdo_bin);
     free(mask_bin);
@@ -194,8 +213,9 @@ int sdr(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
     state_command_data state_cmd_dt;
     shift_command_data shift_cmd_dt;
 
-    char *tdi_bin, *tdo_bin, *mask_bin;
+    char *tdi_bin, *tdo_bin, *mask_bin, *temp;    
     
+    temp = calloc(nbits+1, sizeof(char));
     tdi_bin = calloc(nbits+1, sizeof(char));
     tdo_bin = calloc(nbits+1, sizeof(char));
     mask_bin = calloc(nbits+1, sizeof(char));
@@ -221,7 +241,7 @@ int sdr(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
 
     if(res)
         goto sdr_exit;
-            
+        
     strcat(tms_buffer, state_cmd_dt.tms_buffer);
     for(counter=0; counter < strlen(state_cmd_dt.tms_buffer); counter++) {
         strcat(tdi_buffer, "x");
@@ -237,8 +257,11 @@ int sdr(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
     if(res)
         goto sdr_exit;
     
-    strcat(tdi_buffer, tdi_bin);
-    strcat(tdo_buffer, shift_cmd_dt.tdo_buffer);
+    strcpy_inv(temp, tdi_bin);
+    strcat(tdi_buffer, temp);
+    strcpy_inv(temp, shift_cmd_dt.tdo_buffer);
+    strcat(tdo_buffer, temp);
+    
     for(counter=0; counter < strlen(tdi_bin)-1; counter++) {
         strcat(tms_buffer, "0");
     }
@@ -263,6 +286,7 @@ int sdr(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
         res = -2;
 
 sdr_exit:
+    free(temp);
     free(tdi_bin);
     free(tdo_bin);
     free(mask_bin);
