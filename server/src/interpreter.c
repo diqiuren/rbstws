@@ -417,6 +417,7 @@ void *interpreter_run(void *arg) {
         current_instruction = instructions;
         error_flag = 0;
         seltap(&jtag, 0);
+		tap = 0; 
     }
     
     while(current_instruction != NULL && interpreter_is_running() == 1) {
@@ -439,7 +440,8 @@ int interpreter_step(void) {
             code_parser();
         current_instruction = instructions;
         error_flag = 0;
-        seltap(&jtag, 0);  
+        seltap(&jtag, 0);
+		tap = 0;  
     }
     
     current_instruction = process_instruction(&jtag, current_instruction);
