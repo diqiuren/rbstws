@@ -130,11 +130,11 @@ static const tap_state_t tap_next_state[][2] = {
 };
 
 static const int tap_pin[][2] = {
-	{GPIO_PIN_PA(0), GPIO_PIN_PA(10)},		// TDI
-	{GPIO_PIN_PA(1), GPIO_PIN_PA(11)},		// TCK
-	{GPIO_PIN_PA(2), GPIO_PIN_PA(12)},		// TMS
-	{GPIO_PIN_PA(3), GPIO_PIN_PA(13)},		// TRST
-	{GPIO_PIN_PA(4), GPIO_PIN_PA(14)}		// TDO
+	{GPIO_PIN_PA(10), GPIO_PIN_PA(0)},		// TDI
+	{GPIO_PIN_PA(11), GPIO_PIN_PA(1)},		// TCK
+	{GPIO_PIN_PA(12), GPIO_PIN_PA(2)},		// TMS
+	{GPIO_PIN_PA(13), GPIO_PIN_PA(3)},		// TRST
+	{GPIO_PIN_PA(14), GPIO_PIN_PA(4)}		// TDO
 };
 
 static const int tap_input[] = {
