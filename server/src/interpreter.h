@@ -17,7 +17,10 @@ typedef enum {
     UP_JMPI,
     UP_SETI,
     UP_RSTI,
-    
+	UP_CCHK,		// Clear check
+	UP_ACHK,		// Add check
+    UP_SCHK,		// Safe check
+
     UP_NOP = 0xFE,
     UP_END = 0xFF
 } upcode_t;
