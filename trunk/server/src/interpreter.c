@@ -305,6 +305,15 @@ instruction_t *process_instruction(int *fd, instruction_t *instruction)
                 set_output(fd, atoi(instruction->arg1), 0);
                 next_instruction = (instruction_t*) instruction->next_instruction;
                 break;
+            case UP_CCHK:
+                next_instruction = (instruction_t*) instruction->next_instruction;
+                break;
+            case UP_ACHK:
+                next_instruction = (instruction_t*) instruction->next_instruction;
+                break;
+            case UP_SCHK:
+                next_instruction = (instruction_t*) instruction->next_instruction;
+                break;			
             case UP_END:
                 next_instruction = NULL;
             default:
