@@ -8,7 +8,7 @@
  *      Américo Dias <americo.dias@fe.up.pt>
  *
  * $Revision$
- * $HeadURL: https://rbstws.googlecode.com/svn/trunk/server/src/timestamp.c $
+ * $HeadURL$
  * $Date$
  * $Author$
  * $Id$
