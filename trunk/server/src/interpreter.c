@@ -306,6 +306,7 @@ instruction_t *process_instruction(int *fd, instruction_t *instruction)
                 next_instruction = (instruction_t*) instruction->next_instruction;
                 break;
             case UP_CCHK:
+				
                 next_instruction = (instruction_t*) instruction->next_instruction;
                 break;
             case UP_ACHK:
