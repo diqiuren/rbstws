@@ -65,11 +65,10 @@ safecheck_t *safecheck_last_item(unsigned int tap)
 
 int safecheck_add(unsigned int tap, unsigned int nbits, char *tdo, char *mask)
 {
-	safecheck_t *safechk;
 	safecheck_t *new_safechk = NULL;
 	safecheck_t *last_item = NULL;
 	
-	if(safechk->nbits == 0)
+	if(nbits == 0)
 		return -1;
 	
 	if(strlen(tdo) == 0 || strlen(mask) == 0 || 
@@ -117,15 +116,15 @@ int safecheck_add(unsigned int tap, unsigned int nbits, char *tdo, char *mask)
 	return 0;
 }
 
-unsigned int safecheck(unsigned int time, int *fd, char *tdi_buffer, char *tdo_buffer, char *tms_buffer, tap_state_t *initial_state)
+unsigned int safecheck(unsigned int time)
 {
 	double tstart, tstop;
-	safecheck_t *check_list[2] = {NULL, NULL};
+	//safecheck_t *check_list[2] = {NULL, NULL};
 	
 	tstart = (double)clock()/CLOCKS_PER_SEC;
 
-	check_list[0] = safecheck_list[0];
-	check_list[1] = safecheck_list[1];
+	//check_list[0] = safecheck_list[0];
+	//check_list[1] = safecheck_list[1];
 	
 	while(1) {
 		
