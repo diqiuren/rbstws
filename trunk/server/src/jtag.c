@@ -199,7 +199,7 @@ int sir(int *fd, unsigned int nbits, char *tdi, char *tdo, char *mask, char *tdi
         res = -2;
 
 sir_exit:
-free(temp);
+	free(temp);
     free(tdi_bin);
     free(tdo_bin);
     free(mask_bin);

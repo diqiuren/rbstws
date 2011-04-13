@@ -27,7 +27,7 @@ typedef struct {
 } safecheck_t;
 
 void safecheck_clear(unsigned int tap);
-int safecheck_add(unsigned int tap, safecheck_t *safechk);
-unsigned int safecheck(void);
+int safecheck_add(unsigned int tap, unsigned int nbits, char *tdo, char *mask);
+unsigned int safecheck(unsigned int time);
 
 #endif //__SAFECHECK_H

@@ -63,16 +63,17 @@ safecheck_t *safecheck_last_item(unsigned int tap)
 	return (safecheck_t *)last_item;
 }
 
-int safecheck_add(unsigned int tap, safecheck_t *safechk)
+int safecheck_add(unsigned int tap, unsigned int nbits, char *tdo, char *mask)
 {
+	safecheck_t *safechk;
 	safecheck_t *new_safechk = NULL;
 	safecheck_t *last_item = NULL;
 	
 	if(safechk->nbits == 0)
 		return -1;
 	
-	if(strlen(safechk->tdo) == 0 || strlen(safechk->mask) == 0 || 
-		strlen(safechk->tdo) != strlen(safechk->mask))
+	if(strlen(tdo) == 0 || strlen(mask) == 0 || 
+		strlen(tdo) != strlen(mask))
 		return -1;
 		
 	/* Memory allocation for the new structure */
@@ -82,23 +83,23 @@ int safecheck_add(unsigned int tap, safecheck_t *safechk)
 		return -1;
 	
 	/* nbits */
-	new_safechk->nbits = safechk->nbits;
+	new_safechk->nbits = nbits;
 	
 	/* tdo */
-	new_safechk->tdo = calloc(strlen(safechk->tdo), sizeof(char));
+	new_safechk->tdo = calloc(strlen(tdo), sizeof(char));
 	
 	if(new_safechk->tdo == NULL)
 		return -1;
 		
-	strcpy(new_safechk->tdo, safechk->tdo);
+	strcpy(new_safechk->tdo, tdo);
 	
 	/* mask */
-	new_safechk->mask = calloc(strlen(safechk->mask), sizeof(char));
+	new_safechk->mask = calloc(strlen(mask), sizeof(char));
 	
 	if(new_safechk->mask == NULL)
 		return -1;
 		
-	strcpy(new_safechk->mask, safechk->mask);	
+	strcpy(new_safechk->mask, mask);	
 
 	/* next_safecheck */
 	new_safechk->next_safecheck = NULL;
@@ -116,18 +117,25 @@ int safecheck_add(unsigned int tap, safecheck_t *safechk)
 	return 0;
 }
 
-unsigned int safecheck(void)
+unsigned int safecheck(unsigned int time, int *fd, char *tdi_buffer, char *tdo_buffer, char *tms_buffer, tap_state_t *initial_state)
 {
-	double tstart, tstop, ttime;
-	int done = 0;
+	double tstart, tstop;
+	safecheck_t *check_list[2] = {NULL, NULL};
 	
 	tstart = (double)clock()/CLOCKS_PER_SEC;
 
+	check_list[0] = safecheck_list[0];
+	check_list[1] = safecheck_list[1];
+	
 	while(1) {
+		
+		
 		tstop = (double)clock()/CLOCKS_PER_SEC;
-		if((tstop - tstart) > 5)
+		if((tstop - tstart) >= time)
 			break;
 	}
+	
+	return 0;
 }
 
 /* Testbench */
@@ -135,66 +143,39 @@ unsigned int safecheck(void)
 int main(int argc, char *argv[])
 {
 	safecheck_t *list;
-	safecheck_t *check = NULL;
-	char buffer[512];
-	int done = 0;
+	char tdo[512];
+	char mask[512];
+	char character;
 	int nbits;
 	int counter;
-	
-	/* Memory allocation for the new structure */
-	check = (safecheck_t *) malloc(sizeof(safecheck_t));
 
-	if(check == NULL) {
-		printf("Memory allocation error! (check)\n");
-		return -1;
-	}
 	
-	while(done == 0) {
-		memset(&buffer[0], 0, 512);
-
+	while(1) {
+		memset(tdo, 0, 512);
+		memset(mask, 0, 512);
+		
 		printf ("Add new element (y/n): ");
 
-		buffer[0] = getchar();
+		character = getchar();
 		while (getchar() != '\n');
 
-		if(buffer[0] == 'n')
-			done = 1;
+		if(character == 'n')
+			break;
 		else {
 			/* nbits */
 			printf ("New element NBITS: ");
 			scanf("%d", &nbits);
-			
-			check->nbits = (unsigned int)nbits;
 				
 			/* tdo */
 			printf ("New element TDO: ");
-			scanf("%s", buffer);
-			
-			check->tdo = calloc(strlen(buffer), sizeof(char));
-			if(check->tdo == NULL) {
-				printf("Memory allocation error! (check->tdo)\n");
-				return -1;
-			}
-			strcpy(check->tdo, buffer);
+			scanf("%s", tdo);
 			
 			/* mask */
 			printf ("New element MASK: ");
-			scanf("%s", buffer);
+			scanf("%s", mask);
 			
-			check->mask = calloc(strlen(buffer), sizeof(char));
-			if(check->mask == NULL) {
-				printf("Memory allocation error! (check->mask)\n");
-				return -1;
-			}
-			strcpy(check->mask, buffer);
-			
-			check->next_safecheck = NULL;
-			
-			safecheck_add(0, check);
-			safecheck_add(1, check);
-			
-			free(check->tdo);
-			free(check->mask);
+			safecheck_add(0, nbits, tdo, mask);
+			safecheck_add(1, nbits, tdo, mask);
 			
 			fflush(stdin);
 		    getchar();
@@ -204,7 +185,6 @@ int main(int argc, char *argv[])
 		fflush(stdin);
 	}
 	
-		
 	list = safecheck_list[0];
 	
 	counter = 0;
@@ -222,9 +202,11 @@ int main(int argc, char *argv[])
 	safecheck_clear(0);
 	safecheck_clear(1);
 	
-	printf("Testing safecheck... "); fflush(stdout);
-	safecheck();
+	printf("Testing safecheck (5s)... "); fflush(stdout);
+	safecheck(5);
 	printf("Done!\n"); fflush(stdout);
+	
+	return 0;
 }
 #endif
 

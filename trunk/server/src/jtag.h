@@ -16,7 +16,7 @@
 #ifndef _JTAG_H_
 #define _JTAG_H_
 
-#define BUFFER_LEN  2048
+#define BUFFER_LEN  8192
 
 typedef enum {
     SELTAP = 0,
