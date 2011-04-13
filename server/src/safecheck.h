@@ -17,7 +17,7 @@
 #ifndef __SAFECHECK_H
 #define __SAFECHECK_H
 
-#define __SAFECHECK_TB		1
+#define __SAFECHECK_TB		0
 
 typedef struct {
     unsigned int nbits;

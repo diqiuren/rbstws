@@ -321,7 +321,7 @@ instruction_t *process_instruction(int *fd, instruction_t *instruction)
                 next_instruction = (instruction_t*) instruction->next_instruction;
                 break;
         }
-        vi
+
         if(signal == NULL) {
             signal = calloc(2, sizeof(char));
             signal[0] = 'X';
